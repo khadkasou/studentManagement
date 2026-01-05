@@ -1,5 +1,6 @@
 package com.prakashmalla.sms.entity;
 
+import com.prakashmalla.sms.core.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -11,7 +12,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "address")
-public class AddressEntity extends BaseEntity{
+public class AddressEntity extends BaseEntity {
 
     private String city;
     private String street;
