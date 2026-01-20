@@ -1,7 +1,7 @@
 package com.prakashmalla.sms.entity;
 
 import com.prakashmalla.sms.core.entity.BaseEntity;
-import com.prakashmalla.sms.enums.StatusEnum;
+import com.prakashmalla.sms.core.enums.StatusEnum;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

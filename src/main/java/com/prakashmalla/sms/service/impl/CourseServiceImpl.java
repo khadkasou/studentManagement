@@ -1,9 +1,9 @@
 package com.prakashmalla.sms.service.impl;
 
 import com.prakashmalla.sms.core.enums.ApiStatusEnum;
+import com.prakashmalla.sms.core.enums.StatusEnum;
 import com.prakashmalla.sms.core.payload.response.GlobalResponse;
 import com.prakashmalla.sms.entity.CourseEntity;
-import com.prakashmalla.sms.enums.StatusEnum;
 import com.prakashmalla.sms.mapper.CourseMapper;
 import com.prakashmalla.sms.payload.request.CourseRequest;
 import com.prakashmalla.sms.payload.response.CourseResponse;
@@ -29,20 +29,12 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public GlobalResponse createCourse(CourseRequest request) {
         CourseEntity course = courseMapper.toEntity(request);
-        
-        // Set default status if not provided
         if (course.getStatus() == null) {
             course.setStatus(StatusEnum.ACTIVE);
         }
-        
-        course = courseRepository.save(course);
-        CourseResponse response = courseMapper.toResponse(course);
-        return GlobalResponse.builder()
-                .status(ApiStatusEnum.SUCCESS)
-                .httpStatus(HttpStatus.CREATED)
-                .message("Course created successfully")
-                .data(response)
-                .build();
+        courseRepository.save(course);
+        return GlobalResponse.builder().status(ApiStatusEnum.SUCCESS)
+                .httpStatus(HttpStatus.CREATED).message("Course added successfully").build();
     }
 
     @Override
@@ -51,9 +43,7 @@ public class CourseServiceImpl implements CourseService {
         CourseEntity course = courseRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found with id: " + id));
         CourseResponse response = courseMapper.toResponse(course);
-        return GlobalResponse.builder()
-                .status(ApiStatusEnum.SUCCESS)
-                .message("Course retrieved successfully")
+        return GlobalResponse.builder().status(ApiStatusEnum.SUCCESS).message("Course retrieved successfully")
                 .data(response)
                 .build();
     }

@@ -1,7 +1,7 @@
 package com.prakashmalla.sms.payload.request;
 
+import com.prakashmalla.sms.core.enums.StatusEnum;
 import com.prakashmalla.sms.enums.GenderEnum;
-import com.prakashmalla.sms.enums.StatusEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

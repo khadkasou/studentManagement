@@ -1,8 +1,8 @@
 package com.prakashmalla.sms.entity;
 
 import com.prakashmalla.sms.core.entity.BaseEntity;
+import com.prakashmalla.sms.core.enums.StatusEnum;
 import com.prakashmalla.sms.enums.GenderEnum;
-import com.prakashmalla.sms.enums.StatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -16,4 +16,5 @@ public interface StudentService {
     GlobalResponse deleteStudent(Long id);
 
     GlobalResponse getStudentsByStatus(String status);
+
 }
