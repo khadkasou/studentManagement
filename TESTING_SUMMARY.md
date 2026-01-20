@@ -44,22 +44,22 @@ Response: {
 ```
 POST /api/auth/login
 Body: {
-  "email": "admin@sms.com",
-  "password": "admin123"
+  "email": "prakashmall@gmail.com",
+  "password": "prakashmalla@123"
 }
 Response: {
   "status": "SUCCESS",
   "data": {
     "token": "jwt_token_here",
-    "email": "admin@sms.com",
+    "email": "prakashmall@gmail.com",
     "role": "ADMIN"
   }
 }
 ```
 
 ### 4. **Default Admin Credentials**
-- **Email:** admin@sms.com
-- **Password:** admin123
+- **Email:** prakashmall@gmail.com
+- **Password:** prakashmalla@123
 - **Role:** ADMIN
 - Created automatically on first application startup
 
