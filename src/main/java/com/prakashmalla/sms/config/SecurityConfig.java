@@ -45,11 +45,14 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        // Allow all authenticated users to access endpoints - method-level security will handle permissions
-                        .requestMatchers("/api/students/**").authenticated()
-                        .requestMatchers("/api/courses/**").authenticated()
-                        .requestMatchers("/api/addresses/**").authenticated()
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

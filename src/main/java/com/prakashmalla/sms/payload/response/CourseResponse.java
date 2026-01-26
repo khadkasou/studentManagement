@@ -16,7 +16,9 @@ public class CourseResponse {
 
     private Long id;
     private String name;
-    private StatusEnum status;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+    private String shortName;
+    private String description;
+    private String status;
+
+
 }

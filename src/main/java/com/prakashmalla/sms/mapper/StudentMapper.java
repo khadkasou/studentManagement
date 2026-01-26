@@ -2,14 +2,19 @@ package com.prakashmalla.sms.mapper;
 
 import com.prakashmalla.sms.entity.StudentEntity;
 import com.prakashmalla.sms.payload.request.StudentRequest;
-import com.prakashmalla.sms.payload.response.StudentResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
+import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper( unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface StudentMapper {
 
-    StudentEntity toEntity(StudentRequest request);
+    StudentMapper INSTANCE = Mappers.getMapper(StudentMapper.class);
+    @Mapping(target = "temporaryAddress", ignore = true)
+    @Mapping(target = "permanentAddress", ignore = true)
+    @Mapping(target = "course", ignore = true)
+    StudentEntity toUpdate(StudentRequest request, @MappingTarget StudentEntity student);
 
-    StudentResponse toResponse(StudentEntity entity);
 }

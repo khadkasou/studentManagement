@@ -28,20 +28,12 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         
-        GlobalResponse errorResponse = createErrorResponse(request, authException);
+        GlobalResponse errorResponse = GlobalResponse.builder()
+                .message(authException.getMessage())
+                .status(false)
+                .build();
         objectMapper.writeValue(response.getOutputStream(), errorResponse);
     }
 
-    private GlobalResponse createErrorResponse(HttpServletRequest request, AuthenticationException authException) {
-        String message = authException.getMessage();
-        if (message == null || message.isEmpty()) {
-            message = "Unauthorized: Authentication required. Please provide a valid token.";
-        }
-        
-        return GlobalResponse.builder()
-                .status(ApiStatusEnum.FAILED)
-                .code(String.valueOf(HttpStatus.UNAUTHORIZED.value()))
-                .message(message)
-                .build();
-    }
+
 }

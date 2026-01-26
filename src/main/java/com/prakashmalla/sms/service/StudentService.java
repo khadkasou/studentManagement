@@ -1,6 +1,8 @@
 package com.prakashmalla.sms.service;
 
 import com.prakashmalla.sms.core.payload.response.GlobalResponse;
+import com.prakashmalla.sms.payload.request.StatusChangeRequest;
+import com.prakashmalla.sms.payload.request.StudentDataRequest;
 import com.prakashmalla.sms.payload.request.StudentRequest;
 
 public interface StudentService {
@@ -10,10 +12,11 @@ public interface StudentService {
     GlobalResponse getStudentById(Long id);
 
     GlobalResponse getAllStudents();
+    GlobalResponse findAllStudents(StudentDataRequest request);
 
     GlobalResponse updateStudent(Long id, StudentRequest request);
 
-    GlobalResponse deleteStudent(Long id);
+    GlobalResponse changeStudentStatus(Long id, StatusChangeRequest request);
 
     GlobalResponse getStudentsByStatus(String status);
 

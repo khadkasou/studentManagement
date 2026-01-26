@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaginationResponse {
+public class DataPaginationResponse {
     public long totalElements;
     private Object result;
 }

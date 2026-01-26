@@ -2,10 +2,8 @@ package com.prakashmalla.sms.core.exception;
 
 
 import com.google.gson.Gson;
-import com.prakashmalla.sms.core.enums.ApiStatusEnum;
 import com.prakashmalla.sms.core.payload.response.GlobalResponse;
 import com.prakashmalla.sms.core.payload.response.GlobalResponseBuilder;
-import com.prakashmalla.sms.core.util.MessageBundle;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +44,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(GlobalException.class)
     public ResponseEntity<GlobalResponse> handleRemitsException(GlobalException e) {
-        logger.error("GlobalException caught: code={}, message={}, httpStatus={}", 
-                e.getCode(), e.getMessage(), e.getHttpStatus());
         GlobalResponse response = GlobalResponseBuilder.buildFailResponse(e);
         return ResponseEntity.status(e.getHttpStatus())
                 .body(response);
@@ -76,7 +72,7 @@ public class GlobalExceptionHandler {
                         Collectors.mapping(DefaultMessageSourceResolvable::getDefaultMessage, Collectors.toList())
                 ));
         GlobalResponse globalResponse = new GlobalResponse();
-        globalResponse.setStatus(ApiStatusEnum.FAILED);
+        globalResponse.setStatus(false);
         globalResponse.setCode(String.valueOf(HttpStatus.BAD_REQUEST.value()));
         globalResponse.setData(data);
         if (logger.isInfoEnabled())
@@ -93,7 +89,7 @@ public class GlobalExceptionHandler {
                 error -> (error instanceof FieldError fieldError) ? fieldError.getField() : error.getObjectName(),
                 Collectors.mapping(DefaultMessageSourceResolvable::getDefaultMessage, Collectors.toList())));
         GlobalResponse globalResponse = new GlobalResponse();
-        globalResponse.setStatus(ApiStatusEnum.FAILED);
+        globalResponse.setStatus(false);
         globalResponse.setCode(String.valueOf(HttpStatus.BAD_REQUEST.value()));
         globalResponse.setData(errors);
         return ResponseEntity.badRequest()
@@ -104,7 +100,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<GlobalResponse> handleResourceNotFoundException(NoResourceFoundException e) {
         logger.warn("Resource not found: {}", e.getResourcePath());
         GlobalResponse globalResponse = GlobalResponse.builder()
-                .status(ApiStatusEnum.FAILED)
+                .status(false)
                 .code(String.valueOf(HttpStatus.NOT_FOUND.value()))
                 .message("Resource not found: " + e.getResourcePath())
                 .build();
@@ -116,7 +112,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<GlobalResponse> handleNoHandlerFoundException(NoHandlerFoundException e) {
         logger.warn("No handler found for {} {}", e.getHttpMethod(), e.getRequestURL());
         GlobalResponse globalResponse = GlobalResponse.builder()
-                .status(ApiStatusEnum.FAILED)
+                .status(false)
                 .code(String.valueOf(HttpStatus.NOT_FOUND.value()))
                 .message("No handler found for " + e.getHttpMethod() + " " + e.getRequestURL())
                 .build();
@@ -128,7 +124,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<GlobalResponse> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         logger.warn("HTTP method not supported: {}", e.getMethod());
         GlobalResponse globalResponse = GlobalResponse.builder()
-                .status(ApiStatusEnum.FAILED)
+                .status(false)
                 .code(String.valueOf(HttpStatus.METHOD_NOT_ALLOWED.value()))
                 .message("HTTP method " + e.getMethod() + " is not supported for this endpoint. Supported methods: " + 
                         String.join(", ", e.getSupportedMethods()))
@@ -145,7 +141,7 @@ public class GlobalExceptionHandler {
             message = "Unauthorized: Authentication required. Please provide a valid token.";
         }
         GlobalResponse globalResponse = GlobalResponse.builder()
-                .status(ApiStatusEnum.FAILED)
+                .status(false)
                 .code(String.valueOf(HttpStatus.UNAUTHORIZED.value()))
                 .message(message)
                 .build();
@@ -161,7 +157,7 @@ public class GlobalExceptionHandler {
             message = "Forbidden: You do not have permission to access this resource.";
         }
         GlobalResponse globalResponse = GlobalResponse.builder()
-                .status(ApiStatusEnum.FAILED)
+                .status(false)
                 .code(String.valueOf(HttpStatus.FORBIDDEN.value()))
                 .message(message)
                 .build();
@@ -172,18 +168,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<GlobalResponse> handleAccessDeniedException(final AccessDeniedException e) {
         logger.warn("Access denied exception: {}", e.getMessage());
-        String message = e.getMessage();
-        if (message == null || message.isEmpty()) {
-            // Try to get message from MessageBundle, fallback to default
-            String bundleMessage = MessageBundle.getErrorMessage("PER004");
-            message = (bundleMessage != null && !bundleMessage.isEmpty()) 
-                    ? bundleMessage 
-                    : "Forbidden: You do not have permission to access this resource.";
-        }
         GlobalResponse globalResponse = GlobalResponse.builder()
-                .status(ApiStatusEnum.FAILED)
+                .status(false)
                 .code(String.valueOf(HttpStatus.FORBIDDEN.value()))
-                .message(message)
+                .message("Forbidden: You do not have permission to access this resource.")
                 .build();
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(globalResponse);
@@ -192,8 +180,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<GlobalResponse> handleMissingRequestHeaderException(final MissingRequestHeaderException e) {
         GlobalResponse globalResponse = new GlobalResponse();
-        globalResponse.setStatus(ApiStatusEnum.FAILED);
-        globalResponse.setMessage(MessageBundle.getErrorMessage("HED001"));
+        globalResponse.setStatus(false);
+        globalResponse.setMessage("Header is required");
         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                 .body(globalResponse);
     }

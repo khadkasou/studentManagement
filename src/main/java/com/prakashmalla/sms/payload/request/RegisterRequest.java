@@ -20,6 +20,5 @@ public class RegisterRequest {
     @Email(message = "Email should be valid")
     private String email;
 
-    // Role field removed - all registered users are automatically assigned USER role
-    // Admin role can only be created by system administrators
+
 }

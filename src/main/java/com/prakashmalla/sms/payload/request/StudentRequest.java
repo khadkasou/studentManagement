@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 @Builder
@@ -53,5 +52,5 @@ public class StudentRequest {
 
     private AddressRequest permanentAddress;
 
-    private List<Long> courseIds;
+    private Long courseId;
 }

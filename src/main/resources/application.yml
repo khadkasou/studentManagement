@@ -20,11 +20,15 @@ spring:
     show-sql: true
 
 jwt:
-  secret: MySecretKeyForJWTTokenGenerationThatIsAtLeast256BitsLongForHS256AlgorithmToWorkProperly
+  secret: q8ZpQJ7xN9K2Fh3T6bW4R0YcS5mE1DVaLkXH2ZrUoM=
   expiration: 86400000
 
 admin:
   password: prakashmalla@123
   email: praksashmalla@gmail.com
+
+server:
+  url: http://10.7.1.129:8080
+  port: 8080
 
 

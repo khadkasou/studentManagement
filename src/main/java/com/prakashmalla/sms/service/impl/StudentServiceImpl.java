@@ -1,199 +1,142 @@
 package com.prakashmalla.sms.service.impl;
 
-import com.prakashmalla.sms.core.enums.ApiStatusEnum;
 import com.prakashmalla.sms.core.enums.StatusEnum;
+import com.prakashmalla.sms.core.exception.GlobalException;
+import com.prakashmalla.sms.core.payload.response.DataPaginationResponse;
 import com.prakashmalla.sms.core.payload.response.GlobalResponse;
+import com.prakashmalla.sms.core.payload.response.GlobalResponseBuilder;
+import com.prakashmalla.sms.core.util.Helper;
 import com.prakashmalla.sms.entity.AddressEntity;
 import com.prakashmalla.sms.entity.CourseEntity;
 import com.prakashmalla.sms.entity.StudentEntity;
-import com.prakashmalla.sms.mapper.AddressMapper;
 import com.prakashmalla.sms.mapper.StudentMapper;
-import com.prakashmalla.sms.payload.request.AddressRequest;
+import com.prakashmalla.sms.payload.request.StatusChangeRequest;
+import com.prakashmalla.sms.payload.request.StudentDataRequest;
 import com.prakashmalla.sms.payload.request.StudentRequest;
-import com.prakashmalla.sms.payload.response.AddressResponse;
+import com.prakashmalla.sms.payload.response.CourseResponse;
 import com.prakashmalla.sms.payload.response.StudentResponse;
-import com.prakashmalla.sms.repository.AddressRepository;
 import com.prakashmalla.sms.repository.CourseRepository;
 import com.prakashmalla.sms.repository.StudentRepository;
 import com.prakashmalla.sms.service.StudentService;
+import com.prakashmalla.sms.service.specification.StudentSpecification;
 import com.prakashmalla.sms.utils.StudentCodeGenerator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
-    private final AddressRepository addressRepository;
-    private final StudentMapper studentMapper;
-    private final AddressMapper addressMapper;
+    private final ModelMapper modelMapper;
+    private final StudentCodeGenerator studentCodeGenerator;
 
     @Override
     public GlobalResponse createStudent(StudentRequest request) {
-        StudentEntity student = studentMapper.toEntity(request);
-
-        // Set default status if not provided
-        if (student.getStatus() == null) {
-            student.setStatus(StatusEnum.ACTIVE);
+        StudentEntity student = studentRepository.findByCitizenshipNumber(request.getCitizenshipNumber());
+        if (student != null) {
+            throw new GlobalException("Student already exists!");
         }
+        student = modelMapper.map(request, StudentEntity.class);
+        student.setStatus(StatusEnum.ACTIVE);
 
-        // Map addresses - cascade will handle saving them when student is saved
         if (request.getTemporaryAddress() != null) {
-            AddressEntity temporaryAddress = addressMapper.toEntity(request.getTemporaryAddress());
+            AddressEntity temporaryAddress = modelMapper.map(request.getTemporaryAddress(), AddressEntity.class);
             student.setTemporaryAddress(temporaryAddress);
         }
         if (request.getPermanentAddress() != null) {
-            AddressEntity permanentAddress = addressMapper.toEntity(request.getPermanentAddress());
+            AddressEntity permanentAddress = modelMapper.map(request.getPermanentAddress(), AddressEntity.class);
             student.setPermanentAddress(permanentAddress);
         }
-
-        // Handle courses
-        if (request.getCourseIds() != null && !request.getCourseIds().isEmpty()) {
-            List<CourseEntity> courses = courseRepository.findAllById(request.getCourseIds());
-            student.setCourses(courses);
-        }
-
-        // Save student - cascade will automatically save addresses
-        student = studentRepository.save(student);
-
-        // Generate and set student code after getting ID
-        student.setStudentCode(StudentCodeGenerator.generateStudentCode(student.getId()));
-        student = studentRepository.save(student);
-
-        StudentResponse response = studentMapper.toResponse(student);
-        return GlobalResponse.builder()
-                .status(ApiStatusEnum.SUCCESS)
-                .httpStatus(HttpStatus.CREATED)
-                .message("Student created successfully")
-                .data(response)
-                .build();
+        CourseEntity course = courseRepository.findById(request.getCourseId())
+                .orElseThrow(() -> new GlobalException("Course not found!"));
+        student.setCourse(course);
+        student.setStudentCode(studentCodeGenerator.generateStudentCode(course.getShortName()));
+        studentRepository.save(student);
+        return GlobalResponseBuilder.buildSuccessResponse("Student Created");
     }
 
     @Override
-    @Transactional(readOnly = true)
     public GlobalResponse getStudentById(Long id) {
         StudentEntity student = studentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found with id: " + id));
-        StudentResponse response = studentMapper.toResponse(student);
-        return GlobalResponse.builder()
-                .status(ApiStatusEnum.SUCCESS)
-                .message("Student retrieved successfully")
-                .data(response)
-                .build();
+        StudentResponse response = modelMapper.map(student, StudentResponse.class);
+        return GlobalResponseBuilder.buildSuccessResponseWithData("Student fetched success.", response);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public GlobalResponse getAllStudents() {
-        List<StudentResponse> responses = studentRepository.findAll().stream()
-                .map(studentMapper::toResponse)
+        List<StudentEntity> students = studentRepository.findAllByStatusIs(StatusEnum.ACTIVE);
+        List<StudentResponse> responses = students.stream()
+                .map(student -> modelMapper.map(student, StudentResponse.class))
                 .collect(Collectors.toList());
-        return GlobalResponse.builder()
-                .status(ApiStatusEnum.SUCCESS)
-                .message("Students retrieved successfully")
-                .data(responses)
-                .build();
+        return GlobalResponseBuilder.buildSuccessResponseWithData("Student list fetch success", responses);
+    }
+
+    @Override
+    public GlobalResponse findAllStudents(StudentDataRequest request) {
+        Specification<StudentEntity> specification = StudentSpecification.studentFilter(request);
+        Page<StudentEntity> page = studentRepository.findAll(specification, Helper.getPageable(request));
+        List<StudentResponse> responses = page.getContent().stream().map(m -> {
+            StudentResponse response = modelMapper.map(m, StudentResponse.class);
+            if (m.getCourse() != null) {
+                CourseResponse courseResponse = modelMapper.map(m.getCourse(), CourseResponse.class);
+                response.setCourse(courseResponse);
+            }
+            return response;
+        }).toList();
+        DataPaginationResponse response = new DataPaginationResponse(page.getTotalElements(), responses);
+        return GlobalResponseBuilder.buildSuccessResponseWithData("Student list fetch success", response);
     }
 
     @Override
     public GlobalResponse updateStudent(Long id, StudentRequest request) {
         StudentEntity student = studentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Student not found with id: " + id));
-
-        // Update basic fields
-        student.setFirstName(request.getFirstName());
-        student.setMiddleName(request.getMiddleName());
-        student.setLastName(request.getLastName());
-        student.setEmail(request.getEmail());
-        student.setPhoneNumber(request.getPhoneNumber());
-        student.setDateOfBirth(request.getDateOfBirth());
-        student.setNationality(request.getNationality());
-        student.setCitizenshipNumber(request.getCitizenshipNumber());
-        student.setGuardianName(request.getGuardianName());
-        student.setGuardianContactNumber(request.getGuardianContactNumber());
-        student.setEnrollmentDate(request.getEnrollmentDate());
-        student.setGender(request.getGender());
-        if (request.getStatus() != null) {
-            student.setStatus(request.getStatus());
+                .orElseThrow(() -> new GlobalException("Student not found with id: %s " + id));
+        student = StudentMapper.INSTANCE.toUpdate(request, student);
+        if (request.getTemporaryAddress() != null && student.getTemporaryAddress() != null) {
+            AddressEntity existingTemporaryAddress = student.getTemporaryAddress();
+            existingTemporaryAddress = modelMapper.map(request.getTemporaryAddress(), AddressEntity.class);
+            student.setTemporaryAddress(existingTemporaryAddress);
         }
-
-        // Update addresses - cascade MERGE will handle saving
-        if (request.getTemporaryAddress() != null) {
-            if (student.getTemporaryAddress() != null) {
-                // Update existing address
-                student.getTemporaryAddress().setCity(request.getTemporaryAddress().getCity());
-                student.getTemporaryAddress().setStreet(request.getTemporaryAddress().getStreet());
-                student.getTemporaryAddress().setState(request.getTemporaryAddress().getState());
-                student.getTemporaryAddress().setZip(request.getTemporaryAddress().getZip());
-            } else {
-                // Create new address - cascade PERSIST will save it
-                AddressEntity temporaryAddress = addressMapper.toEntity(request.getTemporaryAddress());
-                student.setTemporaryAddress(temporaryAddress);
-            }
+        if (request.getPermanentAddress() != null && student.getPermanentAddress() != null) {
+            AddressEntity permanentAddress = student.getPermanentAddress();
+            permanentAddress = modelMapper.map(request.getPermanentAddress(), AddressEntity.class);
+            student.setPermanentAddress(permanentAddress);
         }
+        CourseEntity course = courseRepository.findById(request.getCourseId())
+                .orElseThrow(() -> new GlobalException("Course not found!"));
+        student.setCourse(course);
 
-        if (request.getPermanentAddress() != null) {
-            if (student.getPermanentAddress() != null) {
-                // Update existing address
-                student.getPermanentAddress().setCity(request.getPermanentAddress().getCity());
-                student.getPermanentAddress().setStreet(request.getPermanentAddress().getStreet());
-                student.getPermanentAddress().setState(request.getPermanentAddress().getState());
-                student.getPermanentAddress().setZip(request.getPermanentAddress().getZip());
-            } else {
-                // Create new address - cascade PERSIST will save it
-                AddressEntity permanentAddress = addressMapper.toEntity(request.getPermanentAddress());
-                student.setPermanentAddress(permanentAddress);
-            }
-        }
-
-        // Update courses
-        if (request.getCourseIds() != null) {
-            List<CourseEntity> courses = courseRepository.findAllById(request.getCourseIds());
-            student.setCourses(courses);
-        }
-
-        student = studentRepository.save(student);
-        StudentResponse response = studentMapper.toResponse(student);
-        return GlobalResponse.builder()
-                .status(ApiStatusEnum.SUCCESS)
-                .message("Student updated successfully")
-                .data(response)
-                .build();
+        studentRepository.save(student);
+        return GlobalResponseBuilder.buildSuccessResponse("Student updated success.");
     }
 
     @Override
-    public GlobalResponse deleteStudent(Long id) {
+    public GlobalResponse changeStudentStatus(Long id, StatusChangeRequest request) {
         StudentEntity student = studentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found with id: " + id));
-        studentRepository.delete(student);
-        return GlobalResponse.builder()
-                .status(ApiStatusEnum.SUCCESS)
-                .message("Student deleted successfully")
-                .build();
+        student.setStatus(request.getStatus());
+        studentRepository.save(student);
+        return GlobalResponseBuilder.buildSuccessResponse("Student deleted success.");
     }
 
     @Override
-    @Transactional(readOnly = true)
     public GlobalResponse getStudentsByStatus(String status) {
         StatusEnum statusEnum = StatusEnum.valueOf(status.toUpperCase());
         List<StudentResponse> responses = studentRepository.findAll().stream()
                 .filter(student -> student.getStatus() == statusEnum)
-                .map(studentMapper::toResponse)
+                .map(student -> modelMapper.map(student, StudentResponse.class))
                 .collect(Collectors.toList());
-        return GlobalResponse.builder()
-                .status(ApiStatusEnum.SUCCESS)
-                .message("Students retrieved successfully by status")
-                .data(responses)
-                .build();
+        return GlobalResponseBuilder.buildSuccessResponseWithData("Student list fetch success", responses);
     }
 
 

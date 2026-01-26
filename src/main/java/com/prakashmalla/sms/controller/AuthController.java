@@ -20,12 +20,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<GlobalResponse> login(@Valid @RequestBody LoginRequest request) throws GlobalException {
         GlobalResponse response = authService.login(request);
-        return ResponseEntity.status(response.getHttpStatus()).body(response);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("/register")
     public ResponseEntity<GlobalResponse> register(@Valid @RequestBody RegisterRequest request) {
         GlobalResponse response = authService.register(request);
-        return ResponseEntity.status(response.getHttpStatus()).body(response);
+        return ResponseEntity.ok().body(response);
     }
 }

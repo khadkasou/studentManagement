@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
@@ -49,10 +48,8 @@ public class StudentEntity extends BaseEntity {
     @JoinColumn(name = "permanent_address_id")
     private AddressEntity permanentAddress;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "student_courses", joinColumns = @JoinColumn(name = "student_id"),
-            inverseJoinColumns = @JoinColumn(name = "course_id"))
-    private List<CourseEntity> courses;
-
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "course_id")
+    private CourseEntity course;
 
 }

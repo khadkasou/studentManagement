@@ -1,20 +1,16 @@
 package com.prakashmalla.sms.core.payload.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.prakashmalla.sms.core.enums.ApiStatusEnum;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public final class GlobalResponse {
-    private ApiStatusEnum status;
-    @JsonIgnore
-    @Builder.Default
-    private HttpStatus httpStatus = HttpStatus.OK;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public  class GlobalResponse {
+    private boolean status;
     private String code;
     private Object data;
     private String message;

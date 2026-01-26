@@ -2,10 +2,7 @@ package com.prakashmalla.sms.entity;
 
 import com.prakashmalla.sms.core.entity.BaseEntity;
 import com.prakashmalla.sms.core.enums.StatusEnum;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -18,7 +15,9 @@ import lombok.*;
 public class CourseEntity extends BaseEntity {
 
     private String name;
-
+    private String shortName;
     @Enumerated(EnumType.STRING)
     private StatusEnum status;
+    private String description;
+
 }

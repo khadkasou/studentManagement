@@ -23,18 +23,16 @@ public class StudentResponse {
     private String lastName;
     private String email;
     private String phoneNumber;
-    private Date dateOfBirth;
+    private String dateOfBirth;
     private String nationality;
     private String citizenshipNumber;
     private String guardianName;
     private String guardianContactNumber;
-    private Date enrollmentDate;
+    private String enrollmentDate;
     private String studentCode;
-    private GenderEnum gender;
-    private StatusEnum status;
+    private String gender;
+    private String status;
     private AddressResponse temporaryAddress;
     private AddressResponse permanentAddress;
-    private List<CourseResponse> courses;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+    private CourseResponse course;
 }

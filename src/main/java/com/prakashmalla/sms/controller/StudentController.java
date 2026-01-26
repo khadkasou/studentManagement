@@ -1,6 +1,8 @@
 package com.prakashmalla.sms.controller;
 
 import com.prakashmalla.sms.core.payload.response.GlobalResponse;
+import com.prakashmalla.sms.payload.request.StatusChangeRequest;
+import com.prakashmalla.sms.payload.request.StudentDataRequest;
 import com.prakashmalla.sms.payload.request.StudentRequest;
 import com.prakashmalla.sms.service.StudentService;
 import jakarta.validation.Valid;
@@ -10,54 +12,53 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/students")
+@RequestMapping("/api/student")
 @RequiredArgsConstructor
 public class StudentController {
 
     private final StudentService studentService;
 
-    @PostMapping
+    @PostMapping("/create")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<GlobalResponse> createStudent(@Valid @RequestBody StudentRequest request) {
-        GlobalResponse response = studentService.createStudent(request);
-        return ResponseEntity.status(response.getHttpStatus())
-                .body(response);
+        return ResponseEntity.ok().body(studentService.createStudent(request));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GlobalResponse> getStudentById(@PathVariable Long id) {
-        GlobalResponse response = studentService.getStudentById(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(studentService.getStudentById(id));
     }
 
-    @GetMapping
+    @GetMapping("/active-list")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GlobalResponse> getAllStudents() {
-        GlobalResponse response = studentService.getAllStudents();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(studentService.getAllStudents());
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<GlobalResponse> updateStudent(
-            @PathVariable Long id,
-            @Valid @RequestBody StudentRequest request) {
-        GlobalResponse response = studentService.updateStudent(id, request);
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{id}")
+    @PostMapping("/list")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<GlobalResponse> deleteStudent(@PathVariable Long id) {
-        GlobalResponse response = studentService.deleteStudent(id);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<GlobalResponse> findAllStudents(@Valid @RequestBody StudentDataRequest request) {
+        return ResponseEntity.ok(studentService.findAllStudents(request));
+    }
+
+
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<GlobalResponse> updateStudent(@PathVariable Long id, @Valid @RequestBody StudentRequest request) {
+        return ResponseEntity.ok(studentService.updateStudent(id, request));
+    }
+
+    @DeleteMapping("/change-status/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<GlobalResponse> deleteStudent(@PathVariable Long id, @RequestBody StatusChangeRequest request) {
+        return ResponseEntity.ok( studentService.changeStudentStatus(id,request));
     }
 
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GlobalResponse> getStudentsByStatus(@PathVariable String status) {
-        GlobalResponse response = studentService.getStudentsByStatus(status);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(studentService.getStudentsByStatus(status));
     }
+
 }

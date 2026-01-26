@@ -3,6 +3,7 @@ package com.prakashmalla.sms.service.impl;
 import com.prakashmalla.sms.core.enums.ApiStatusEnum;
 import com.prakashmalla.sms.core.exception.GlobalException;
 import com.prakashmalla.sms.core.payload.response.GlobalResponse;
+import com.prakashmalla.sms.core.payload.response.GlobalResponseBuilder;
 import com.prakashmalla.sms.entity.UserEntity;
 import com.prakashmalla.sms.enums.RoleEnum;
 import com.prakashmalla.sms.payload.request.LoginRequest;
@@ -11,7 +12,6 @@ import com.prakashmalla.sms.payload.response.LoginResponse;
 import com.prakashmalla.sms.repository.UserRepository;
 import com.prakashmalla.sms.service.AuthService;
 import com.prakashmalla.sms.utils.JwtUtil;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,7 +41,6 @@ public class AuthServiceImpl implements AuthService {
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
 
-            // Extract email and role from authentication
             String email = authentication.getName();
             String role = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
@@ -49,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
                     .findFirst()
                     .map(authority -> {
                         if (authority.startsWith("ROLE_")) {
-                            return authority.substring(5); // Remove "ROLE_" prefix
+                            return authority.substring(5);
                         }
                         return authority;
                     })
@@ -66,15 +65,10 @@ public class AuthServiceImpl implements AuthService {
                     .type("Bearer")
                     .build();
 
-            return GlobalResponse.builder()
-                    .status(ApiStatusEnum.SUCCESS)
-                    .httpStatus(HttpStatus.OK)
-                    .message("Login successful")
-                    .data(loginResponse)
-                    .build();
+            return GlobalResponseBuilder.buildSuccessResponseWithData("Login Success", loginResponse);
 
         } catch (BadCredentialsException e) {
-            throw new GlobalException("AUTH001", "Invalid email or password", HttpStatus.UNAUTHORIZED);
+            throw new GlobalException("Invalid email or password", HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -82,41 +76,15 @@ public class AuthServiceImpl implements AuthService {
     public GlobalResponse register(RegisterRequest request) {
         // Validate email uniqueness
         if (userRepository.existsByEmail(request.getEmail())) {
-            return GlobalResponse.builder()
-                    .status(ApiStatusEnum.FAILED)
-                    .httpStatus(HttpStatus.BAD_REQUEST)
-                    .message("Email already exists")
-                    .build();
+         throw new GlobalException("Email already exists");
         }
-
-        // Create user entity - always set role to USER for security
-        // Admin role can only be created by system administrators, not through registration
         UserEntity user = UserEntity.builder()
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
-                .role(RoleEnum.USER) // Force USER role - ignore any role from request
+                .role(RoleEnum.USER)
                 .enabled(true)
                 .build();
-
-        // Save user
-        user = userRepository.save(user);
-
-        // Generate token
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-
-        // Build response
-        LoginResponse loginResponse = LoginResponse.builder()
-                .token(token)
-                .email(user.getEmail())
-                .role(user.getRole().name())
-                .type("Bearer")
-                .build();
-
-        return GlobalResponse.builder()
-                .status(ApiStatusEnum.SUCCESS)
-                .httpStatus(HttpStatus.CREATED)
-                .message("User registered successfully")
-                .data(loginResponse)
-                .build();
+        userRepository.save(user);
+        return GlobalResponseBuilder.buildSuccessResponse("Register Success");
     }
 }

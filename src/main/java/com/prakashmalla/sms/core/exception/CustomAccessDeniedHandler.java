@@ -29,21 +29,12 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.FORBIDDEN.value());
         
-        GlobalResponse errorResponse = createErrorResponse(request, accessDeniedException);
+        GlobalResponse errorResponse = GlobalResponse.builder()
+                .status(false)
+                .message(accessDeniedException.getMessage())
+                .build();
         objectMapper.writeValue(response.getOutputStream(), errorResponse);
     }
 
-    private GlobalResponse createErrorResponse(HttpServletRequest request, AccessDeniedException accessDeniedException) {
-        String message = accessDeniedException.getMessage();
-        if (message == null || message.isEmpty()) {
-            message = "Forbidden: You do not have permission to access this resource.";
-        }
-        
-        return GlobalResponse.builder()
-                .status(ApiStatusEnum.FAILED)
-                .code(String.valueOf(HttpStatus.FORBIDDEN.value()))
-                .message(message)
-                .build();
-    }
 }
 

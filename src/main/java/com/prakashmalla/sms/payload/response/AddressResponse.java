@@ -18,6 +18,4 @@ public class AddressResponse {
     private String street;
     private String state;
     private String zip;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
 }
