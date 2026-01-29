@@ -18,6 +18,5 @@ public interface StudentService {
 
     GlobalResponse changeStudentStatus(Long id, StatusChangeRequest request);
 
-    GlobalResponse getStudentsByStatus(String status);
 
 }

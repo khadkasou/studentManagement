@@ -1,7 +1,6 @@
 package com.prakashmalla.sms.core.exception;
 
 
-import com.prakashmalla.sms.core.enums.ApiStatusEnum;
 import com.prakashmalla.sms.core.payload.response.GlobalResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

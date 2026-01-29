@@ -13,8 +13,10 @@ import com.prakashmalla.sms.mapper.StudentMapper;
 import com.prakashmalla.sms.payload.request.StatusChangeRequest;
 import com.prakashmalla.sms.payload.request.StudentDataRequest;
 import com.prakashmalla.sms.payload.request.StudentRequest;
+import com.prakashmalla.sms.payload.response.AddressResponse;
 import com.prakashmalla.sms.payload.response.CourseResponse;
 import com.prakashmalla.sms.payload.response.StudentResponse;
+import com.prakashmalla.sms.payload.response.SubjectResponse;
 import com.prakashmalla.sms.repository.CourseRepository;
 import com.prakashmalla.sms.repository.StudentRepository;
 import com.prakashmalla.sms.service.StudentService;
@@ -68,8 +70,29 @@ public class StudentServiceImpl implements StudentService {
     public GlobalResponse getStudentById(Long id) {
         StudentEntity student = studentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found with id: " + id));
+
         StudentResponse response = modelMapper.map(student, StudentResponse.class);
-        return GlobalResponseBuilder.buildSuccessResponseWithData("Student fetched success.", response);
+
+        if (student.getTemporaryAddress() != null) {
+            response.setTemporaryAddress(modelMapper.map(student.getTemporaryAddress(), AddressResponse.class));
+        }
+        if (student.getPermanentAddress() != null) {
+            response.setPermanentAddress(modelMapper.map(student.getPermanentAddress(), AddressResponse.class));
+        }
+        if (student.getCourse() != null) {
+            CourseResponse courseResponse = modelMapper.map(student.getCourse(), CourseResponse.class);
+
+            if (student.getCourse().getSubject() != null && !student.getCourse().getSubject().isEmpty()) {
+                List<SubjectResponse> subjectResponses = student.getCourse().getSubject().stream()
+                        .map(subject -> modelMapper.map(subject, SubjectResponse.class))
+                        .collect(Collectors.toList());
+                courseResponse.setSubjects(subjectResponses);
+            }
+
+            response.setCourse(courseResponse);
+        }
+
+        return GlobalResponseBuilder.buildSuccessResponseWithData("Student fetched successfully.", response);
     }
 
     @Override
@@ -102,15 +125,19 @@ public class StudentServiceImpl implements StudentService {
         StudentEntity student = studentRepository.findById(id)
                 .orElseThrow(() -> new GlobalException("Student not found with id: %s " + id));
         student = StudentMapper.INSTANCE.toUpdate(request, student);
-        if (request.getTemporaryAddress() != null && student.getTemporaryAddress() != null) {
-            AddressEntity existingTemporaryAddress = student.getTemporaryAddress();
-            existingTemporaryAddress = modelMapper.map(request.getTemporaryAddress(), AddressEntity.class);
-            student.setTemporaryAddress(existingTemporaryAddress);
+        if (request.getTemporaryAddress() != null) {
+            if (student.getTemporaryAddress() == null) {
+                student.setTemporaryAddress(modelMapper.map(request.getTemporaryAddress(), AddressEntity.class));
+            } else {
+                modelMapper.map(request.getTemporaryAddress(), student.getTemporaryAddress());
+            }
         }
-        if (request.getPermanentAddress() != null && student.getPermanentAddress() != null) {
-            AddressEntity permanentAddress = student.getPermanentAddress();
-            permanentAddress = modelMapper.map(request.getPermanentAddress(), AddressEntity.class);
-            student.setPermanentAddress(permanentAddress);
+        if (request.getPermanentAddress() != null) {
+            if (student.getPermanentAddress() == null) {
+                student.setPermanentAddress(modelMapper.map(request.getPermanentAddress(), AddressEntity.class));
+            } else {
+                modelMapper.map(request.getPermanentAddress(), student.getPermanentAddress());
+            }
         }
         CourseEntity course = courseRepository.findById(request.getCourseId())
                 .orElseThrow(() -> new GlobalException("Course not found!"));
@@ -127,16 +154,6 @@ public class StudentServiceImpl implements StudentService {
         student.setStatus(request.getStatus());
         studentRepository.save(student);
         return GlobalResponseBuilder.buildSuccessResponse("Student deleted success.");
-    }
-
-    @Override
-    public GlobalResponse getStudentsByStatus(String status) {
-        StatusEnum statusEnum = StatusEnum.valueOf(status.toUpperCase());
-        List<StudentResponse> responses = studentRepository.findAll().stream()
-                .filter(student -> student.getStatus() == statusEnum)
-                .map(student -> modelMapper.map(student, StudentResponse.class))
-                .collect(Collectors.toList());
-        return GlobalResponseBuilder.buildSuccessResponseWithData("Student list fetch success", responses);
     }
 
 

@@ -40,7 +40,7 @@ public class StudentEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private StatusEnum status;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "temporary_address_id")
     private AddressEntity temporaryAddress;
 

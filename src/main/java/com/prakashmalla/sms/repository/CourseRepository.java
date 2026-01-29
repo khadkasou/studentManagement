@@ -12,4 +12,6 @@ public interface CourseRepository extends BaseRepository<CourseEntity,Long> {
 
     CourseEntity findByShortName(String shortName);
     List<CourseEntity> findAllByStatusIs(StatusEnum status);
+
+    boolean existsByShortNameAndIdNot(String shortName, Long id);
 }

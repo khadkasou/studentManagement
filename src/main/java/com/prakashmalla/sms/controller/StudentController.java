@@ -19,46 +19,34 @@ public class StudentController {
     private final StudentService studentService;
 
     @PostMapping("/create")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<GlobalResponse> createStudent(@Valid @RequestBody StudentRequest request) {
         return ResponseEntity.ok().body(studentService.createStudent(request));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GlobalResponse> getStudentById(@PathVariable Long id) {
         return ResponseEntity.ok(studentService.getStudentById(id));
     }
 
     @GetMapping("/active-list")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GlobalResponse> getAllStudents() {
         return ResponseEntity.ok(studentService.getAllStudents());
     }
 
     @PostMapping("/list")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GlobalResponse> findAllStudents(@Valid @RequestBody StudentDataRequest request) {
         return ResponseEntity.ok(studentService.findAllStudents(request));
     }
 
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<GlobalResponse> updateStudent(@PathVariable Long id, @Valid @RequestBody StudentRequest request) {
         return ResponseEntity.ok(studentService.updateStudent(id, request));
     }
 
-    @DeleteMapping("/change-status/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<GlobalResponse> deleteStudent(@PathVariable Long id, @RequestBody StatusChangeRequest request) {
+    @PatchMapping("/change-status/{id}")
+    public ResponseEntity<GlobalResponse> changeStudentStatus(@PathVariable Long id, @RequestBody StatusChangeRequest request) {
         return ResponseEntity.ok( studentService.changeStudentStatus(id,request));
-    }
-
-    @GetMapping("/status/{status}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<GlobalResponse> getStudentsByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(studentService.getStudentsByStatus(status));
     }
 
 }

@@ -1,16 +1,16 @@
 package com.prakashmalla.sms.service.specification;
 
-import com.prakashmalla.sms.entity.CourseEntity;
-import com.prakashmalla.sms.payload.request.CourseDataRequest;
+import com.prakashmalla.sms.entity.SubjectEntity;
+import com.prakashmalla.sms.payload.request.SubjectDataRequest;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
-public class CourseSpecification {
-    private CourseSpecification() {
+public class SubjectSpecification {
+    private SubjectSpecification() {
     }
 
-    public static Specification<CourseEntity> courseFilter(CourseDataRequest request) {
+    public static Specification<SubjectEntity> subjectFilter(SubjectDataRequest request) {
 
         return (root, query, criteriaBuilder) -> {
 

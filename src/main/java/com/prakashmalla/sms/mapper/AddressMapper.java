@@ -1,15 +1,13 @@
 package com.prakashmalla.sms.mapper;
 
-import com.prakashmalla.sms.entity.AddressEntity;
-import com.prakashmalla.sms.payload.request.AddressRequest;
-import com.prakashmalla.sms.payload.response.AddressResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
+import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AddressMapper {
 
-    AddressEntity toEntity(AddressRequest request);
+    AddressMapper INSTANCE = Mappers.getMapper(AddressMapper.class);
 
-    AddressResponse toResponse(AddressEntity entity);
+
 }

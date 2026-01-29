@@ -40,7 +40,6 @@ public class AuthServiceImpl implements AuthService {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
-
             String email = authentication.getName();
             String role = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)

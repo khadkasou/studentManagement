@@ -5,6 +5,8 @@ import com.prakashmalla.sms.core.enums.StatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -19,5 +21,11 @@ public class CourseEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private StatusEnum status;
     private String description;
+
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinTable(name = "subject_course", joinColumns = @JoinColumn(name = "course_id"),inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    private List<SubjectEntity> subject;
+
 
 }

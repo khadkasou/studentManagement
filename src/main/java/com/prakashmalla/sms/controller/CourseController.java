@@ -18,43 +18,32 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping("/create")
-//    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<GlobalResponse> createCourse(@Valid @RequestBody CourseRequest request) {
-        GlobalResponse response = courseService.createCourse(request);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(courseService.createCourse(request));
     }
 
     @GetMapping("/{id}")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GlobalResponse> getCourseById(@PathVariable Long id) {
-        GlobalResponse response = courseService.getCourseById(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
     @GetMapping("/active-list")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GlobalResponse> getAllCourses() {
-        GlobalResponse response = courseService.getAllCourses();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(courseService.getAllCourses());
     }
+
     @PostMapping("/list")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GlobalResponse> findAllCourses(CourseDataRequest request) {
-        GlobalResponse response = courseService.findAllCourses(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(courseService.findAllCourses(request));
     }
 
     @PutMapping("/update/{id}")
-//    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<GlobalResponse> updateCourse(@PathVariable Long id, @Valid @RequestBody CourseRequest request) {
-        GlobalResponse response = courseService.updateCourse(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(courseService.updateCourse(id, request));
     }
 
     @PatchMapping("/change-status/{id}")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GlobalResponse> changeStatus(@PathVariable Long id, @Valid @RequestBody StatusChangeRequest request) {
-        GlobalResponse response = courseService.changeCourseStatus(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(courseService.changeCourseStatus(id, request));
     }
 }

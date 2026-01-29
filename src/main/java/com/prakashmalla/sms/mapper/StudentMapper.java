@@ -3,7 +3,6 @@ package com.prakashmalla.sms.mapper;
 import com.prakashmalla.sms.entity.StudentEntity;
 import com.prakashmalla.sms.payload.request.StudentRequest;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
@@ -12,9 +11,7 @@ import org.mapstruct.factory.Mappers;
 public interface StudentMapper {
 
     StudentMapper INSTANCE = Mappers.getMapper(StudentMapper.class);
-    @Mapping(target = "temporaryAddress", ignore = true)
-    @Mapping(target = "permanentAddress", ignore = true)
-    @Mapping(target = "course", ignore = true)
+
     StudentEntity toUpdate(StudentRequest request, @MappingTarget StudentEntity student);
 
 }
