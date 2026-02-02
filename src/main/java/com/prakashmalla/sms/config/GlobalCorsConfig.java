@@ -19,10 +19,13 @@ public class GlobalCorsConfig {
         // Allowed origins - including api-gateway origins for server-to-server communication
         config.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:3000",
+                "http://localhost:3001",
                 "http://localhost:8080",
                 "http://127.0.0.1:3000",
+                "http://127.0.0.1:3001",
                 "http://127.0.0.1:8080",
-                "http://10.7.1.39:3000"
+                "http://10.7.1.39:3000",
+                "http://10.7.1.39:3001"
 
         ));
  
