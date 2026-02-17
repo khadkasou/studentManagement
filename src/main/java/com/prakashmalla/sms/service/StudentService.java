@@ -10,6 +10,7 @@ public interface StudentService {
     GlobalResponse createStudent(StudentRequest request);
 
     GlobalResponse getStudentById(Long id);
+    GlobalResponse getStudentByEmail(String email);
 
     GlobalResponse getAllStudents();
     GlobalResponse findAllStudents(StudentDataRequest request);

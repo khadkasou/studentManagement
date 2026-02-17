@@ -2,6 +2,7 @@ package com.prakashmalla.sms.payload.response;
 
 import com.prakashmalla.sms.core.enums.StatusEnum;
 import com.prakashmalla.sms.enums.GenderEnum;
+import com.prakashmalla.sms.enums.RoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,4 +36,5 @@ public class StudentResponse {
     private AddressResponse temporaryAddress;
     private AddressResponse permanentAddress;
     private CourseResponse course;
+    private String role;
 }

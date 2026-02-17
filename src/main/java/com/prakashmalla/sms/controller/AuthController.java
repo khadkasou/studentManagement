@@ -23,9 +23,15 @@ public class AuthController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("/register")
+    @PostMapping("/create")
     public ResponseEntity<GlobalResponse> register(@Valid @RequestBody RegisterRequest request) {
-        GlobalResponse response = authService.register(request);
+        GlobalResponse response = authService.createUser(request);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/loggedin/user-details")
+    public ResponseEntity<GlobalResponse> getLoggedInUserDetails(@RequestHeader(name = "Authorization") String token) {
+        GlobalResponse response = authService.getLoggedInUser(token);
         return ResponseEntity.ok().body(response);
     }
 }

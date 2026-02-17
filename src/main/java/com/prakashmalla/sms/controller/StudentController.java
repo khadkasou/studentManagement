@@ -27,6 +27,10 @@ public class StudentController {
     public ResponseEntity<GlobalResponse> getStudentById(@PathVariable Long id) {
         return ResponseEntity.ok(studentService.getStudentById(id));
     }
+    @GetMapping("/{email}")
+    public ResponseEntity<GlobalResponse> getStudentByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(studentService.getStudentByEmail(email));
+    }
 
     @GetMapping("/active-list")
     public ResponseEntity<GlobalResponse> getAllStudents() {

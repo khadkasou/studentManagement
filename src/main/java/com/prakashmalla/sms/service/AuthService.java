@@ -7,5 +7,7 @@ import com.prakashmalla.sms.payload.request.RegisterRequest;
 
 public interface AuthService {
     GlobalResponse login(LoginRequest request) throws GlobalException;
-    GlobalResponse register(RegisterRequest request);
+    GlobalResponse createUser(RegisterRequest request);
+
+    GlobalResponse getLoggedInUser(String token);
 }

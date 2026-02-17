@@ -3,6 +3,7 @@ package com.prakashmalla.sms.entity;
 import com.prakashmalla.sms.core.entity.BaseEntity;
 import com.prakashmalla.sms.core.enums.StatusEnum;
 import com.prakashmalla.sms.enums.GenderEnum;
+import com.prakashmalla.sms.enums.RoleEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,8 @@ public class StudentEntity extends BaseEntity {
     private String guardianName;
     private String guardianContactNumber;
     private Date enrollmentDate;
+    @Enumerated(EnumType.STRING)
+    private RoleEnum role;
 
     @Column(nullable = false, unique = true, length = 50)
     private String studentCode;
@@ -51,5 +54,7 @@ public class StudentEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "course_id")
     private CourseEntity course;
+
+
 
 }

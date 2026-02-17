@@ -2,5 +2,6 @@ package com.prakashmalla.sms.enums;
 
 public enum RoleEnum {
     ADMIN,
-    USER
+    STUDENT,
+    SUPER_ADMIN
 }

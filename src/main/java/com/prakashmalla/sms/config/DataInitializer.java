@@ -29,7 +29,7 @@ public class DataInitializer implements CommandLineRunner {
     }
     private void loadAdminUser() {
         // Check if admin user already exists
-        if (userRepository.existsByRole(RoleEnum.ADMIN)) {
+        if (userRepository.existsByRole(RoleEnum.SUPER_ADMIN)) {
             log.info("Admin user already exists. Skipping admin user creation.");
             return;
         }
@@ -43,7 +43,7 @@ public class DataInitializer implements CommandLineRunner {
         UserEntity tempUser = UserEntity.builder()
                 .email(adminProperties.getEmail())
                 .password("temp")
-                .role(RoleEnum.ADMIN)
+                .role(RoleEnum.SUPER_ADMIN)
                 .enabled(true)
                 .build();
 
@@ -58,7 +58,7 @@ public class DataInitializer implements CommandLineRunner {
         UserEntity adminUser = UserEntity.builder()
                 .password(passwordEncoder.encode(adminProperties.getPassword()))
                 .email(adminProperties.getEmail())
-                .role(RoleEnum.ADMIN)
+                .role(RoleEnum.SUPER_ADMIN)
                 .enabled(true)
                 .build();
 

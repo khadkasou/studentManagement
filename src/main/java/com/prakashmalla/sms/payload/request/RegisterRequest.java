@@ -1,5 +1,6 @@
 package com.prakashmalla.sms.payload.request;
 
+import com.prakashmalla.sms.enums.RoleEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,8 @@ public class RegisterRequest {
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;
+
+    private RoleEnum role;
 
 
 }

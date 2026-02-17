@@ -13,6 +13,7 @@ public interface StudentRepository extends BaseRepository<StudentEntity,Long> {
 
     List<StudentEntity> findAllByStatusIs(StatusEnum status);
 
+    StudentEntity findByEmail(String email);
     StudentEntity findByCitizenshipNumber(String citizenshipNumber);
 
     @Query("select s.studentCode from StudentEntity s")

@@ -9,6 +9,7 @@ import com.prakashmalla.sms.core.util.Helper;
 import com.prakashmalla.sms.entity.AddressEntity;
 import com.prakashmalla.sms.entity.CourseEntity;
 import com.prakashmalla.sms.entity.StudentEntity;
+import com.prakashmalla.sms.enums.RoleEnum;
 import com.prakashmalla.sms.mapper.StudentMapper;
 import com.prakashmalla.sms.payload.request.StatusChangeRequest;
 import com.prakashmalla.sms.payload.request.StudentDataRequest;
@@ -48,6 +49,7 @@ public class StudentServiceImpl implements StudentService {
             throw new GlobalException("Student already exists!");
         }
         student = modelMapper.map(request, StudentEntity.class);
+        student.setRole(RoleEnum.STUDENT);
         student.setStatus(StatusEnum.ACTIVE);
 
         if (request.getTemporaryAddress() != null) {
@@ -94,6 +96,37 @@ public class StudentServiceImpl implements StudentService {
 
         return GlobalResponseBuilder.buildSuccessResponseWithData("Student fetched successfully.", response);
     }
+
+    @Override
+    public GlobalResponse getStudentByEmail(String email) {
+        StudentEntity student = studentRepository.findByEmail(email);
+        if (student == null) {
+            throw new GlobalException("Student not found!");
+        }
+        StudentResponse response = modelMapper.map(student, StudentResponse.class);
+
+        if (student.getTemporaryAddress() != null) {
+            response.setTemporaryAddress(modelMapper.map(student.getTemporaryAddress(), AddressResponse.class));
+        }
+        if (student.getPermanentAddress() != null) {
+            response.setPermanentAddress(modelMapper.map(student.getPermanentAddress(), AddressResponse.class));
+        }
+        if (student.getCourse() != null) {
+            CourseResponse courseResponse = modelMapper.map(student.getCourse(), CourseResponse.class);
+
+            if (student.getCourse().getSubject() != null && !student.getCourse().getSubject().isEmpty()) {
+                List<SubjectResponse> subjectResponses = student.getCourse().getSubject().stream()
+                        .map(subject -> modelMapper.map(subject, SubjectResponse.class))
+                        .collect(Collectors.toList());
+                courseResponse.setSubjects(subjectResponses);
+            }
+
+            response.setCourse(courseResponse);
+        }
+
+        return GlobalResponseBuilder.buildSuccessResponseWithData("Student fetched successfully.", response);
+    }
+
 
     @Override
     public GlobalResponse getAllStudents() {
